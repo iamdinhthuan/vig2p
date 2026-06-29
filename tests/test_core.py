@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+import json
+import subprocess
+import sys
+import tempfile
 import unittest
+from pathlib import Path
 
 from vig2p import VietnameseG2P, fix_phonemes, phonemize_many, phonemize_text, tokenize_text
 
@@ -73,6 +78,34 @@ class Vig2PTest(unittest.TestCase):
         for text, expected in cases.items():
             with self.subTest(text=text):
                 self.assertEqual(converter(text), expected)
+
+    def test_cli_plain_text_and_json_output(self):
+        project_root = Path(__file__).resolve().parents[1]
+        with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False) as f:
+            f.write("tường nhà khách\n")
+            input_path = Path(f.name)
+        try:
+            plain = subprocess.run(
+                [sys.executable, "-m", "vig2p", "--file", str(input_path)],
+                cwd=project_root,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            self.assertIn("tường nhà khách\t", plain.stdout)
+
+            json_run = subprocess.run(
+                [sys.executable, "-m", "vig2p", "--json", "tường nhà khách"],
+                cwd=project_root,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            payload = json.loads(json_run.stdout)
+            self.assertEqual(payload["text"], "tường nhà khách")
+            self.assertEqual(payload["phonemes"], "tˈyə↘ŋ ɲˈaː↘ xˈæ↗c")
+        finally:
+            input_path.unlink(missing_ok=True)
 
     def test_text_aware_t_and_th_contrast(self):
         backend = FakeBackend({"tường": "t̪ˈyə2ŋ", "thường": "tˈyə2ŋ", "teo": "t̪ˈɛw", "theo": "tˈɛw"})
