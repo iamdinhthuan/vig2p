@@ -1,6 +1,6 @@
 """Vietnamese G2P helpers."""
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 from .core import (
     VI_FIXUPS,

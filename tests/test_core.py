@@ -50,6 +50,30 @@ class Vig2PTest(unittest.TestCase):
 
         self.assertEqual(converter("cách"), "kˈæ↗c")
 
+    def test_default_converter_is_self_contained_and_matches_training_outputs(self):
+        converter = VietnameseG2P()
+
+        cases = {
+            "tường": "tˈyə↘ŋ",
+            "thường": "θˈyə↘ŋ",
+            "trước": "ʈʂˈyə↗c",
+            "chước": "ʧˈyə↗c",
+            "số": "ʂˈo↗",
+            "xố": "sˈo↗",
+            "giải": "ʝˈaː↓j",
+            "dải": "zˈaː↓j",
+            "team": "tˈiːm",
+            "start": "stˈɑːɹt",
+            "style": "stˈaɪl",
+            "travel": "tɹˈævəl",
+            "giant": "dʒˈaɪənt",
+            "tường nhà khách. thường nhà khách.": "tˈyə↘ŋ ɲˈaː↘ xˈæ↗c. θˈyə↘ŋ ɲˈaː↘ xˈæ↗c.",
+        }
+
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(converter(text), expected)
+
     def test_text_aware_t_and_th_contrast(self):
         backend = FakeBackend({"tường": "t̪ˈyə2ŋ", "thường": "tˈyə2ŋ", "teo": "t̪ˈɛw", "theo": "tˈɛw"})
 

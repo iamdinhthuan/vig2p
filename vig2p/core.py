@@ -56,7 +56,9 @@ class G2PBackend(Protocol):
 
 
 def create_backend() -> G2PBackend:
-    raise RuntimeError("No default G2P backend is configured yet.")
+    from ._engine import Pipeline
+
+    return Pipeline()
 
 
 def _backend_output_to_text(result) -> str:
